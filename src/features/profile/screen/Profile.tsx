@@ -134,14 +134,12 @@ const Profile = () => {
           {/* ================= SECTION 1: AVATAR FRAME ================= */}
           <div className="flex flex-col items-center gap-3 mb-2">
             <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-blue-500 bg-gray-100 shadow-inner">
-              <img
-                src={previewUrl || profile.avatar || "https://placehold.co"}
-                alt="Profile Avatar Preview"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.src = "https://placehold.co";
-                }}
-              />
+             <img
+    src={profile.avatar}
+    alt="Profile"
+    width={150}
+    height={150}
+/>
             </div>
             <label className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer text-sm font-semibold shadow-sm transition-colors duration-200">
               Change Profile Photo

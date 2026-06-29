@@ -6,9 +6,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://shyamindustry-bac
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 40000, 
-  headers: {
-    'Content-Type': 'application/json',
-  },
+
 });
 
 axiosInstance.interceptors.request.use(
