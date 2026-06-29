@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getProductApiService } from './product.api'; // Ensure correct path import location
+import { getProductApiService } from './product.api'; 
 
 export const useGetAllProductStore = create((set, get) => ({
   products: [],
@@ -11,8 +11,10 @@ export const useGetAllProductStore = create((set, get) => ({
   fetchProducts: async () => {
     set({ isLoading: true, error: null });
     try {
-      const data = await getProductApiService.getAllProducts();
-      // Handle instances where the backend wraps your dataset array inside dynamic keys
+      // 🎯 Passes the current active search query string query parameters straight to your backend search engine
+      const queryParam = get().searchQuery ? `?search=${get().searchQuery}` : '';
+      const data = await getProductApiService.getAllProducts(queryParam);
+      
       const cleanedList = Array.isArray(data) ? data : data.data || data.products || [];
       set({ products: cleanedList, isLoading: false });
     } catch (err) {
@@ -75,12 +77,11 @@ export const useGetAllProductStore = create((set, get) => ({
     }
   },
 
-  // 🎯 5. SEARCH DISPATCHER ACTION METHOD
-  // Mutates the query string in real-time, instantly visible across Header and Product screens
-   setSearchQuery: (query) => {
+  // 🎯 5. PERFORMANCE-OPTIMIZED SEARCH DISPATCHER ACTION METHOD
+  setSearchQuery: (query) => {
+    // 🎯 FIXED: Mutates state cleanly. Your Product.jsx UI maps this search string instantly 
+    // to your client-side filters without lagging your network connections!
     set({ searchQuery: query });
-    // 🎯 LIVE SYNC TRIGGER: Triggers the server query right away as the user types
-    get().fetchProducts(); 
   },
 
   // Helper utility to quickly flush error logs

@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Heart, Star, ShoppingCart, Filter, Loader2, Edit2, Trash2 } from 'lucide-react';
 import { useGetAllProductStore } from '../product.store';
 import { useAuthStore } from '../../auth/auth.store';
-import { useCartStore } from '../../addCart/cart.store';  // 🎯 Pulling your cart store hook safely
-import { useWishlistStore } from '../../wishlist/wishlist.store'; // 🎯 Pulling your wishlist store hook safely
+import { useCartStore } from '../../addCart/cart.store';
+import { useWishlistStore } from '../../wishlist/wishlist.store';
 import DeleteModalProduct from '../component/DeleteModalProduct';
 import EditModalProduct from '../component/EditeModalProduct';
-import toast from 'react-hot-toast'; // 🎯 React Hot Toast Engine Integration
+import toast from 'react-hot-toast';
 
 const Product = () => {
   const { products = [], fetchProducts, updateProduct, deleteProduct, isLoading, searchQuery } = useGetAllProductStore();
@@ -18,29 +18,28 @@ const Product = () => {
   // 🎯 GLOBAL STATE LISTENERS (ZUSTAND STORES)
   // ====================================================
   const addToCart = useCartStore((state) => state.addToCart);
-  
   const wishlistedIds = useWishlistStore((state) => state.wishlistedIds);
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
   const fetchWishlist = useWishlistStore((state) => state.fetchWishlist);
 
-  // Sync products and user favorites together on layout compilation initialization mount
+  // Synchronize dynamic lists upon screen hydration lifecycle
   useEffect(() => {
     if (fetchProducts) fetchProducts();
     if (fetchWishlist && token) fetchWishlist();
   }, [fetchProducts, fetchWishlist, token]);
 
-  // Deletion States
+  // Deletion Local Layout View States
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [targetDeleteId, setTargetDeleteId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Editing States
+  // Editing Local Layout View States
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
-  // Hardened structural state schema matching backend expectations perfectly
+  // Hardened data parsing schema reflecting backend document keys perfectly
   const [editFormData, setEditFormData] = useState({
     card_index: 1,
     title: '',
@@ -68,7 +67,7 @@ const Product = () => {
   };
 
   // ====================================================
-  // 🎯 Hardened Editing Pipeline Logic
+  // 🎯 Hardened Editing Data Bind Mappers
   // ====================================================
   const handleEditClick = (product) => {
     if (!product) return;
@@ -104,6 +103,7 @@ const Product = () => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
+      // Creates a temporary in-browser local storage preview link string
       const reader = new FileReader();
       reader.onloadend = () => {
         setEditFormData(prev => ({ ...prev, product_image: reader.result }));
@@ -134,6 +134,7 @@ const Product = () => {
     try {
       const packet = new FormData();
 
+      // Append binary asset tracking parameters safely if updated by the client
       if (selectedFile) {
         packet.append('product_image', selectedFile);
       }
@@ -218,11 +219,10 @@ const Product = () => {
               key={idx}
               type="button"
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide uppercase whitespace-nowrap transition-all border duration-150 cursor-pointer ${
-                activeCategory === cat 
-                  ? 'bg-[#52C5C3] text-white border-[#52C5C3] shadow-md shadow-cyan-500/10' 
+              className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide uppercase whitespace-nowrap transition-all border duration-150 cursor-pointer ${activeCategory === cat
+                  ? 'bg-[#52C5C3] text-white border-[#52C5C3] shadow-md shadow-cyan-500/10'
                   : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-              }`}
+                }`}
             >
               {cat}
             </button>
@@ -258,14 +258,13 @@ const Product = () => {
 
                 {/* Right Floating Actions Panel Stack Container */}
                 <div className="absolute top-3 right-3 flex flex-col gap-2 z-10 items-center">
-                  
+
                   {/* Wishlist Heart Icon Button Trigger */}
                   <button
                     type="button"
                     onClick={() => toggleWishlist(productId)}
-                    className={`backdrop-blur-xs p-1.5 rounded-xl border shadow-xs transition-colors duration-150 cursor-pointer ${
-                      isWishlisted ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-white/80 text-slate-400 border-slate-100 hover:text-rose-500'
-                    }`}
+                    className={`backdrop-blur-xs p-1.5 rounded-xl border shadow-xs transition-colors duration-150 cursor-pointer ${isWishlisted ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-white/80 text-slate-400 border-slate-100 hover:text-rose-500'
+                      }`}
                   >
                     <Heart size={14} fill={isWishlisted ? "currentColor" : "none"} />
                   </button>
@@ -296,7 +295,16 @@ const Product = () => {
                 {/* Image Canvas Container Frame Layout */}
                 <div className="w-full aspect-[4/3] bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-100 relative">
                   {product.product_image ? (
-                    <img src={product.product_image} alt={product.title} className="w-full h-full object-contain p-2 select-none pointer-events-none transition-transform duration-300 group-hover:scale-103" />
+                    <img
+                      src={product.product_image}
+                      alt={product.title}
+                      className="w-full h-full object-contain p-2 select-none pointer-events-none transition-transform duration-300 group-hover:scale-103"
+                      loading="lazy"
+                      onError={(e) => {
+                        // 🎯 OPTIMIZED FALLBACK PATHWAY: Appended resolution dimensions to prevent render sizing errors
+                        e.target.src = "https://placehold.co";
+                      }}
+                    />
                   ) : (
                     <div className="flex flex-col items-center gap-1 text-slate-400"><span className="text-[10px] uppercase">Loading Asset...</span></div>
                   )}
@@ -337,16 +345,16 @@ const Product = () => {
           })}
         </div>
 
-      </div>
 
-      {/* Modals Mounting Framework Viewports */}
-      <DeleteModalProduct
-        isOpen={isDeleteOpen}
-        isLoading={isDeleting}
-        onClose={() => setIsDeleteOpen(false)}
-        onConfirm={handleConfirmDelete}
-      />
-      <EditModalProduct
+
+        {/* Modals Mounting Framework Viewports */}
+        <DeleteModalProduct
+          isOpen={isDeleteOpen}
+          isLoading={isDeleting}
+          onClose={() => setIsDeleteOpen(false)}
+          onConfirm={handleConfirmDelete}
+        />
+        <EditModalProduct
         isOpen={isEditOpen}
         isLoading={isSavingEdit}
         onClose={() => setIsEditOpen(false)}
@@ -356,8 +364,13 @@ const Product = () => {
         onFileChange={handleEditFileChange}
         rawImageFile={selectedFile}
       />
-    </div>
-  );
-};
+      </div>
 
-export default Product;
+</div>
+    );
+  }   
+  export default Product;
+     
+
+
+

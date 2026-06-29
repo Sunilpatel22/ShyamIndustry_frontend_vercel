@@ -301,7 +301,4 @@ const [showAdminKey, setShowAdminKey] = useState(false);
 };
 
 export default SignupScreen;
-function setLocalError(arg0: string) {
-  throw new Error('Function not implemented.');
-}
 

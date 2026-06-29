@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import useProfileStore from "../profile.store"; // Custom hooks layer mapping state stores natively
+import useProfileStore from "../profile.store"; 
 
 const Profile = () => {
-  // 1. Destructure shared profile state and the refresh action from the custom hook store
+  // 1. Destructure shared profile state and actions from the custom hook store
   const {
-    profile: profileData, // 🎯 CRITICAL LOOKUP MATCH FOR INSTANT HEADER SYNC
+    profile: profileData, 
     userData,
     loading: fetchLoading,
     modifyProfile,
-    fetchProfile,         // 🎯 EXTRACT the refetch trigger action
+    fetchProfile,         
     clearNotifications,
     error: storeError,
     successMessage: storeSuccess
@@ -34,7 +34,7 @@ const Profile = () => {
 
   // 3. Mount-trigger fetching data variables over axios
   useEffect(() => {
-    fetchProfile();
+    if (fetchProfile) fetchProfile();
   }, [fetchProfile]);
 
   // 4. Populate localized states whenever store caches record updates
@@ -79,10 +79,9 @@ const Profile = () => {
   };
 
   // 6. Packaging data as Multipart Form-Data and routing to state engine hooks
-   // 6. Packaging data as Multipart Form-Data and routing to state engine hooks
   const handleSubmit = async (e) => {
     e.preventDefault();
-    clearNotifications();
+    if (clearNotifications) clearNotifications();
 
     const formData = new FormData();
     formData.append("bio", profile.bio);
@@ -97,13 +96,11 @@ const Profile = () => {
     const result = await modifyProfile(formData);
     
     if (result?.success) {
-      setSelectedFile(null); // Clear active file queue elements upon confirmation
-      
-      // 🎯 FORCE HARD PAGE REFRESH ON SUCCESSFUL UPDATE
+      setSelectedFile(null); 
+      // Force reload to let the layout and headers sync with the short URL path string perfectly
       window.location.reload(); 
     }
   };
-
 
   if (fetchLoading && !profileData) {
     return (
@@ -135,27 +132,28 @@ const Profile = () => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           
           {/* ================= SECTION 1: AVATAR FRAME ================= */}
-        <div className="flex flex-col items-center gap-3 mb-2">
-  <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-blue-500 bg-gray-100 shadow-inner">
-    <img
-      src={previewUrl || profile.avatar || "https://placeholder.com"}
-      alt="Profile Avatar Preview"
-      className="w-full h-full object-cover"
-    />
-  </div>
-  {/* 🎯 FIX: Explicitly enforce your file trigger label style or button constraints */}
-  <label className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer text-sm font-semibold shadow-sm transition-colors duration-200">
-    Change Profile Photo
-    {/* Ensure the input itself doesn't collide with native submit actions */}
-    <input 
-      type="file" 
-      accept="image/*" 
-      onChange={handleFileChange} 
-      className="hidden" 
-      onClick={(e) => e.stopPropagation()} // Prevents the click from bubbling up to the form
-    />
-  </label>
-</div>
+          <div className="flex flex-col items-center gap-3 mb-2">
+            <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-blue-500 bg-gray-100 shadow-inner">
+              <img
+                src={previewUrl || profile.avatar || "https://placehold.co"}
+                alt="Profile Avatar Preview"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.src = "https://placehold.co";
+                }}
+              />
+            </div>
+            <label className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer text-sm font-semibold shadow-sm transition-colors duration-200">
+              Change Profile Photo
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleFileChange} 
+                className="hidden" 
+                onClick={(e) => e.stopPropagation()} 
+              />
+            </label>
+          </div>
 
           {/* ================= SECTION 2: READ ONLY ACCOUNT FIELDS ================= */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -211,8 +209,7 @@ const Profile = () => {
               <input type="text" name="state" value={profile.address.state} onChange={handleAddressChange} className="p-2.5 rounded-lg border border-gray-300 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-full text-sm transition-all" placeholder="Uttar Pradesh" />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Zip/Postal Code</label>
-              <input type="text" name="zipCode" value={profile.address.zipCode} onChange={handleAddressChange} className="p-2.5 rounded-lg border border-gray-300 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-full text-sm transition-all" placeholder="201301" />
+  <input type="text" name="zipCode" value={profile.address.zipCode} onChange={handleAddressChange} className="p-2.5 rounded-lg border border-gray-300 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none w-full text-sm transition-all" placeholder="201301" />
             </div>
           </div>
 
@@ -223,12 +220,12 @@ const Profile = () => {
 
           {/* ================= BUTTON CONTROLS ================= */}
           <button 
-  type="submit" 
-  disabled={fetchLoading} 
-  className="mt-4 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:hover:bg-green-600 text-white font-semibold py-3 rounded-lg text-sm transition-colors duration-200 shadow-sm outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 cursor-pointer"
->
-  {fetchLoading ? "Saving Changes..." : "Update Profile Configuration"}
-</button>
+            type="submit" 
+            disabled={fetchLoading} 
+            className="mt-4 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:hover:bg-green-600 text-white font-semibold py-3 rounded-lg text-sm transition-colors duration-200 shadow-sm outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 cursor-pointer uppercase tracking-wide"
+          >
+            {fetchLoading ? "Saving Changes..." : "Update Profile Configuration"}
+          </button>
         </form>
       </div>
     </div>
