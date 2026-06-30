@@ -13,6 +13,7 @@ export const profileApiService = {
     // 🎯 FIXED: Removed leading slash to prevent URL resolution breakdowns
     const response = await axiosInstance.put('profile/updateProfile', formData, {
       headers: {
+        
         'Content-Type': 'multipart/form-data', 
       },
     });
